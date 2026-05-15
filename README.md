@@ -58,6 +58,12 @@ burn 100000 --model sonnet  # walk away
 
 ---
 
+## Stats
+
+<img width="1672" height="941" alt="burnchart" src="https://github.com/user-attachments/assets/20ef0646-8d50-4c74-9f59-4bca40c5f749" />
+
+---
+
 ## License
 
 MIT (but it's all vibe-coded so who really knows who owns it?). Burn responsibly. 🔥
