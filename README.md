@@ -1,5 +1,7 @@
 # burn-baby-burn
 
+![burn-baby-burn](burn.png)
+
 > *"Burn, baby, burn — disco inferno."*
 > &nbsp;&nbsp;&nbsp;&nbsp;— The Trammps, 1976, on the subject of API quotas
 

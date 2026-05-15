@@ -288,6 +288,16 @@ round_cents() {
   awk -v c="$1" 'BEGIN{printf "%.2f", c}'
 }
 
+# Format a non-negative integer with thousands-grouping commas (21826 -> 21,826).
+fmt_num() {
+  local n=$1 result=""
+  while ((n >= 1000)); do
+    result=$(printf ",%03d%s" $((n % 1000)) "$result")
+    n=$((n / 1000))
+  done
+  printf "%d%s" "$n" "$result"
+}
+
 on_interrupt() {
   if [[ -n "$claude_pid" ]]; then
     kill "$claude_pid" 2>/dev/null || true
@@ -367,7 +377,9 @@ done
 cost_rounded=$(round_cents "$total_cost")
 msg="${CELEBRATIONS[RANDOM % ${#CELEBRATIONS[@]}]}"
 
-printf "\n\n%s\n\n" "$msg"
-printf "   🔥 torched %s fire tokens across %s call(s) (target: %s)\n" \
-  "$burned" "$iteration" "$tokens"
-printf "   💰 spent \$%s\n\n" "$cost_rounded"
+burned_fmt=$(fmt_num "$burned")
+tokens_fmt=$(fmt_num "$tokens")
+
+printf "\n\n 🔥 torched %s tokens across %s call(s) (target: %s) • 💰 spent \$%s 💵💵💵\n\n" \
+  "$burned_fmt" "$iteration" "$tokens_fmt" "$cost_rounded"
+printf " %s\n\n" "$msg"
