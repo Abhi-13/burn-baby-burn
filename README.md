@@ -22,7 +22,7 @@ burn 50000  # burn 50,000 tokens
 
 ---
 
-## Install
+## So easy to install!
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/dtnewman/burn-baby-burn/main/install.sh | bash
