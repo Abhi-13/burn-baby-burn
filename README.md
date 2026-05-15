@@ -1,9 +1,7 @@
-# burn-baby-burn
+# Burn, baby, burn
 
 ![burn-baby-burn](burn.png)
 
-> *"Burn, baby, burn — disco inferno."*
-> &nbsp;&nbsp;&nbsp;&nbsp;— The Trammps, 1976, on the subject of API quotas
 
 A bash one-liner that burns Claude Code tokens on purpose.
 
