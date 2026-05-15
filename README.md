@@ -2,7 +2,7 @@
 
 ![burn-baby-burn](burn.png)
 
-### Because nothing says "AI-native" like a six-figure token bill
+### Because nothing gets you promoted faster than a six-figure token bill
 
 A bash one-liner that burns Claude Code tokens on purpose.
 
