@@ -268,18 +268,16 @@ restore_cursor() {
 trap restore_cursor EXIT
 
 CELEBRATIONS=(
-  "🔧 You are a great engineer!"
+  "🔧 You are an true AI-native engineer!"
   "🪄 You are an AI wizard!"
   "🕺 Tokens burned. Groove restored."
-  "✨ Claude never saw that coming."
+  "✨ You are a master of vibe-coding."
   "🚀 You shipped faster than the flame could spread."
   "💃 The code is hot and the vibes are immaculate."
-  "🪩 Groovy job. Productivity achieved."
-  "⚡ The tokens are gone, but the legend remains."
+  "🪩 Groovy job. I've never seen someone so productive!"
   "🏆 Another glorious victory for human-machine collaboration."
   "⚡ You turned tokens into pure developer energy."
   "🎩 Behold: a masterclass in responsible token combustion."
-  "🌈 The code goblins approve this burn."
   "🛠️  Great work. The token furnace is pleased."
 )
 
