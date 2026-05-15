@@ -7,12 +7,8 @@
 A bash one-liner that burns Claude Code tokens on purpose.
 
 ```bash
-burn 50000
+burn 50000  # burn 50,000 tokens
 ```
-
-That's it. It calls `claude -p` in a loop with garbage prompts until your
-target is hit. Real numbers come back from the API, so the total is the
-total that hits your bill.
 
 ---
 
