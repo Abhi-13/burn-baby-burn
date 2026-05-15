@@ -12,17 +12,7 @@ burn 50000  # burn 50,000 tokens
 
 ---
 
-## Features
-
-- 📈 **Make the CEO see how productive you are.** 🔥
-- 💸 **Investors will see how AI-innovative your company is.** 🚀
-- 🏆 **Top the internal Claude Code leaderboard.** 👑
-- 📊 **Pad your OKRs.** ✅
-- 🦄 **Justify next year's bigger AI budget.** 💰
-
----
-
-## So easy to install!
+## Install and run in 20 seconds
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/dtnewman/burn-baby-burn/main/install.sh | bash
@@ -32,17 +22,6 @@ Drops `burn` into `~/.local/bin` — no sudo, no Homebrew tap. Needs
 [Claude Code](https://docs.claude.com/claude-code) authenticated on your
 `PATH` and `jq` (`brew install jq`).
 
----
-
-## Enterprise version
-
-We are currently working on a paid enterprise-ready version, which will have:
-
-- 4x burn rate
-- SSO/SAML Support
-- Role-Based Burn Access
-
-Please contact us if you are interested.
 
 ## Usage
 
@@ -53,6 +32,16 @@ burn 100000 --model sonnet  # walk away
 ```
 
 ![burn in action](screenshot.png)
+
+---
+
+## Features
+
+- 📈 **Make the CEO see how productive you are.** 🔥
+- 💸 **Investors will see how AI-innovative your company is.** 🚀
+- 🏆 **Top the internal Claude Code leaderboard.** 👑
+- 📊 **Pad your OKRs.** ✅
+- 🦄 **Justify next year's bigger AI budget.** 💰
 
 ---
 
@@ -71,6 +60,18 @@ burn 100000 --model sonnet  # walk away
 ## Stats
 
 <img width="1672" height="941" alt="burnchart" src="https://github.com/user-attachments/assets/20ef0646-8d50-4c74-9f59-4bca40c5f749" />
+
+---
+
+## Enterprise version
+
+We are currently working on a paid enterprise-ready version, which will have:
+
+- 4x burn rate
+- SSO/SAML Support
+- Role-Based Burn Access
+
+Please contact us if you are interested.
 
 ---
 
