@@ -19,8 +19,9 @@ curl -fsSL https://raw.githubusercontent.com/dtnewman/burn-baby-burn/main/instal
 ```
 
 Drops `burn` into `~/.local/bin` — no sudo, no Homebrew tap. Needs
-[Claude Code](https://docs.claude.com/claude-code) **or**
-[Codex](https://github.com/openai/codex) authenticated on your `PATH`, plus
+[Claude Code](https://docs.claude.com/claude-code),
+[Codex](https://github.com/openai/codex), **or**
+[Gemini CLI](https://geminicli.com) authenticated on your `PATH`, plus
 `jq` (`brew install jq`).
 
 ## Usage
@@ -30,6 +31,7 @@ burn 10000                            # the minimum
 burn 50000 --model haiku              # cheap and fast
 burn 100000 --model sonnet            # walk away
 burn 50000 --backend codex            # 🤖 burn OpenAI tokens
+burn 50000 --backend gemini           # 🪩 burn Gemini tokens
 ```
 
 ![burn in action](screenshot.png)

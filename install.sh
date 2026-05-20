@@ -10,6 +10,8 @@ mkdir -p "$DEST_DIR"
 curl -fsSL "$BASE_URL/burn"            -o "$DEST_DIR/burn"
 # Sourced by burn when using --backend codex to compute estimated cost.
 curl -fsSL "$BASE_URL/codex_rates.sh"  -o "$DEST_DIR/codex_rates.sh"
+# Sourced by burn when using --backend gemini to compute estimated cost.
+curl -fsSL "$BASE_URL/gemini_rates.sh" -o "$DEST_DIR/gemini_rates.sh"
 chmod +x "$DEST_DIR/burn"
 
 echo "✅ installed burn → $DEST_DIR/burn"

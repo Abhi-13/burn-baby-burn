@@ -16,23 +16,25 @@ FILLER_TOKENS=1000
 # Backend-specific system overhead, measured empirically per CLI.
 CLAUDE_SYSTEM_OVERHEAD_TOKENS=9000  # claude -p with --tools ""
 CODEX_SYSTEM_OVERHEAD_TOKENS=12000  # codex exec --sandbox read-only
+GEMINI_SYSTEM_OVERHEAD_TOKENS=7400  # gemini -p baseline (isolated from workspace)
 FILLER_LINE="Burn baby burn, this is a disco inferno, burning tokens is for great engineers. "
 
 usage() {
   cat <<EOF
-burn — spin up Claude Code or Codex in a loop to burn approximately N tokens.
+burn — spin up Claude Code, Codex, or Gemini in a loop to burn approximately N tokens.
 
 Usage:
-  burn TOKENS [--model MODEL] [--backend claude|codex]
+  burn TOKENS [--model MODEL] [--backend claude|codex|gemini]
 
 Arguments:
   TOKENS         Target tokens to burn. Minimum per call:
                    claude: $((CLAUDE_SYSTEM_OVERHEAD_TOKENS + FILLER_TOKENS))
                    codex:  $((CODEX_SYSTEM_OVERHEAD_TOKENS + FILLER_TOKENS))
+                   gemini: $((GEMINI_SYSTEM_OVERHEAD_TOKENS + FILLER_TOKENS))
 
 Options:
-  --model NAME       Model to pass through (e.g. haiku, sonnet, gpt-5).
-  --backend NAME     Which CLI to drive: 'claude' or 'codex'.
+  --model NAME       Model to pass through (e.g. haiku, sonnet, gpt-5, gemini-2.5-flash).
+  --backend NAME     Which CLI to drive: 'claude', 'codex', or 'gemini'.
                      Default: claude if installed, else codex.
   -h, --help         Show this help and exit.
 EOF
@@ -100,16 +102,19 @@ if ! [[ "$tokens" =~ ^[0-9]+$ ]]; then
   exit 2
 fi
 
-# Resolve backend: explicit flag > auto-detect (claude preferred, codex fallback).
+# Resolve backend: explicit flag > auto-detect (claude preferred, codex next, gemini fallback).
 if [[ -z "$backend" ]]; then
   if command -v claude >/dev/null 2>&1; then
     backend=claude
   elif command -v codex >/dev/null 2>&1; then
     backend=codex
+  elif command -v gemini >/dev/null 2>&1; then
+    backend=gemini
   else
-    echo "error: neither 'claude' nor 'codex' found on PATH." >&2
+    echo "error: none of 'claude', 'codex', or 'gemini' found on PATH." >&2
     echo "       install Claude Code: https://docs.claude.com/claude-code" >&2
     echo "       or Codex CLI:        https://github.com/openai/codex" >&2
+    echo "       or Gemini CLI:       https://geminicli.com" >&2
     exit 1
   fi
 fi
@@ -117,8 +122,9 @@ fi
 case "$backend" in
   claude) SYSTEM_OVERHEAD_TOKENS=$CLAUDE_SYSTEM_OVERHEAD_TOKENS ;;
   codex)  SYSTEM_OVERHEAD_TOKENS=$CODEX_SYSTEM_OVERHEAD_TOKENS ;;
+  gemini) SYSTEM_OVERHEAD_TOKENS=$GEMINI_SYSTEM_OVERHEAD_TOKENS ;;
   *)
-    echo "error: unknown --backend '$backend' (must be 'claude' or 'codex')" >&2
+    echo "error: unknown --backend '$backend' (must be 'claude', 'codex', or 'gemini')" >&2
     exit 2
     ;;
 esac
@@ -128,6 +134,7 @@ if ! command -v "$backend" >/dev/null 2>&1; then
   case "$backend" in
     claude) echo "       install Claude Code: https://docs.claude.com/claude-code" >&2 ;;
     codex)  echo "       install Codex CLI:   https://github.com/openai/codex" >&2 ;;
+    gemini) echo "       install Gemini CLI:  https://geminicli.com" >&2 ;;
   esac
   exit 1
 fi
@@ -328,6 +335,11 @@ case "$backend" in
     # --tools is variadic, so terminate flag parsing before the prompt.
     cli_cmd+=(--)
     ;;
+  gemini)
+    cli_cmd=(gemini -o json --skip-trust)
+    [[ -n "$model" ]] && cli_cmd+=(--model "$model")
+    cli_cmd+=(-p)
+    ;;
   codex)
     cli_cmd=(codex exec --json --skip-git-repo-check --sandbox read-only)
     [[ -n "$model" ]] && cli_cmd+=(--model "$model")
@@ -343,6 +355,16 @@ cost_reported=0
 cost_model=""
 if [[ "$backend" == claude ]]; then
   cost_reported=1
+elif [[ "$backend" == gemini ]]; then
+  if [[ -f "$SCRIPT_DIR/gemini_rates.sh" ]]; then
+    # shellcheck source=gemini_rates.sh
+    source "$SCRIPT_DIR/gemini_rates.sh"
+    # Assume gemini-3-flash-preview unless the user passed --model.
+    cost_model="${model:-gemini-3-flash-preview}"
+    if gemini_has_rates "$cost_model"; then
+      cost_reported=1
+    fi
+  fi
 elif [[ "$backend" == codex ]]; then
   if [[ -f "$SCRIPT_DIR/codex_rates.sh" ]]; then
     # shellcheck source=codex_rates.sh
@@ -433,8 +455,11 @@ trap on_interrupt INT
 run_cli() {
   local output_file
   output_file=$(mktemp)
-  # </dev/null prevents codex from waiting on stdin when run in background.
-  "${cli_cmd[@]}" "$prompt" >"$output_file" 2>/dev/null </dev/null &
+  if [[ "$backend" == gemini ]]; then
+    (cd "$(mktemp -d)" && "${cli_cmd[@]}" "$prompt") >"$output_file" 2>/dev/null </dev/null &
+  else
+    "${cli_cmd[@]}" "$prompt" >"$output_file" 2>/dev/null </dev/null &
+  fi
   cli_pid=$!
 
   local frame=0
@@ -467,6 +492,33 @@ parse_usage() {
            (.usage.output_tokens // 0)),
           (.total_cost_usd // 0)
         ] | @tsv' <<<"$last_output"
+      ;;
+    gemini)
+      # Gemini CLI outputs warning/log lines before the JSON response object.
+      # Filter the output to start from the first open curly brace.
+      local json_only inp cached out cost actual_model
+      json_only=$(sed -n '/{/,$p' <<<"$last_output")
+
+      # Verify if output was parsed as valid JSON and doesn't contain CLI errors
+      if ! jq -e . <<<"$json_only" >/dev/null 2>&1; then
+        printf "\nerror: Gemini CLI did not return valid JSON\n" >&2
+        exit 1
+      fi
+
+      read -r inp cached out < <(jq -r '.stats.models | to_entries[0] | .value.tokens | [.input // 0, .cached // 0, .candidates // 0] | @tsv' <<<"$json_only")
+      if [[ -z "$inp" ]] || [[ -z "$cached" ]] || [[ -z "$out" ]]; then
+        printf "\nerror: Could not parse token statistics from Gemini CLI output\n" >&2
+        exit 1
+      fi
+
+      if ((cost_reported)); then
+        actual_model=$(jq -r '.stats.models | keys[0]' <<<"$json_only")
+        cost=$(gemini_cost "$actual_model" "$inp" "$cached" "$out")
+      else
+        cost=0
+      fi
+      # Total tokens burned is non-cached input + cached input + candidates output
+      printf '%d\t%s\n' "$((inp + cached + out))" "$cost"
       ;;
     codex)
       # codex emits JSONL; sum usage across any turn.completed events.
