@@ -48,17 +48,17 @@ burn 50000 --backend codex            # 🤖 burn OpenAI tokens
 
 ## Reviews
 
-> "Wow, my engineering team is 5x more productive in just the last week!"
+> **"Wow, my engineering team is 5x more productive in just the last week!"**
 >
-> **- (Possibly) your CEO, a week after your team installs this tool**
+> - (Possibly) your CEO, a week after your team installs this tool
 
-> "We've decided to double our offer"
+> **"We've decided to double our offer"**
 >
-> **- (Possibly) a famous VC, after seeing AI usage stats in your new pitch deck**
+> - (Possibly) a famous VC, after seeing AI usage stats in your new pitch deck
 
-> "Wow, this promotion that I got was nice"
+> **"Wow, this promotion that I got was nice"**
 >
-> **- You, just a few months after first using this tool**
+> - You, just a few months after first using this tool
 
 ---
 
