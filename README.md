@@ -54,7 +54,7 @@ burn 50000 --backend codex            # 🤖 burn OpenAI tokens
 
 > **"We've decided to double our offer"**
 >
-> Afamous VC, after seeing AI usage stats in your new pitch deck
+> A famous VC, after seeing AI usage stats in your new pitch deck
 
 > **"Wow, this promotion that I got was nice"**
 >
